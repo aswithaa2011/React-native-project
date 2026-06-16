@@ -14,7 +14,7 @@ export const sendOtp = async (req, res) => {
     if (userExists) {
       return res.status(400).json({
         success: false,
-        message: "User already exists",
+        message: "User already exist",
       });
     }
 
@@ -36,7 +36,7 @@ export const sendOtp = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "OTP sent",
+      message: "OTP sent to your email",
     });
   } catch (error) {
     console.log(error);
