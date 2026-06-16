@@ -5,13 +5,13 @@ const sendEmail = async (email, otp) => {
     service: "gmail",
 
     auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
+      user: process.env.SMTP_EMAIL,
+      pass: process.env.SMTP_PASS,
     },
   });
 
   await transporter.sendMail({
-    from: process.env.EMAIL_USER,
+    from: process.env.SMTP_EMAIL,
     to: email,
     subject: "OTP Verification",
     html: `
