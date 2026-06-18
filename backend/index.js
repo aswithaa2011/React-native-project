@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import connectDb from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
+import reviewRoutes from "./routes/reviewRoutes.js"
 
 
 
@@ -16,6 +17,7 @@ app.use(express.json());
 
 
 app.use("/api/auth", authRoutes);
+app.use("/api/review",reviewRoutes)
 
 
 
