@@ -24,12 +24,10 @@ const userProfileSchema = new mongoose.Schema(
       identity: {
         verificationId: { type: String },
         isVerified: { type: Boolean, default: false },
-        badge: { type: String },
       },
-      hostel: {
+      hostelOwner: {
         verificationId: { type: String },
         isVerified: { type: Boolean, default: false },
-        badge: { type: String },
       },
     },
     currentStay: {
