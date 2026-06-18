@@ -9,4 +9,4 @@ const otpSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("Otp", otpSchema);
+export default mongoose.model("Otps", otpSchema);

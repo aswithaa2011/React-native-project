@@ -1,7 +1,8 @@
-import User from "../models/User.js";
 import Otp from "../models/Otp.js";
+import UserProfile from "../models/UserProfile.js";
 import otpGenerator from "otp-generator";
 import sendEmail from "../utils/sendEmail.js";
+import jwt from "jsonwebtoken";
 
 export const sendOTP = async (req, res) => {
   try {
@@ -78,17 +79,25 @@ export const verifyOTP = async (req, res) => {
       });
     }
 
-    await User.findOneAndUpdate(
+    let profile = await UserProfile.findOneAndUpdate(
       { email },
-      { $set: { email, isVerified: true } },
+      { $set: { email, "verification.identity.isVerified": true } },
       { new: true, upsert: true }
     );
 
     await Otp.deleteOne({ email });
 
+    const token = jwt.sign(
+      { id: profile._id, email: profile.email },
+      process.env.JWT_SECRET || "fallback_secret",
+      { expiresIn: "7d" }
+    );
+
     return res.status(200).json({
       success: true,
       message: "Email verified successfully",
+      token,
+      user: profile,
     });
   } catch (error) {
     console.error("Error in verifyOTP:", error);
@@ -120,7 +129,7 @@ export const resendOTP = async (req, res) => {
           message: `Please wait ${Math.ceil(60 - timeDiff)} seconds before resending OTP`,
         });
       }
-      
+
       // Remove the old OTP
       await Otp.deleteOne({ email });
     }
