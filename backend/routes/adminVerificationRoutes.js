@@ -9,13 +9,12 @@ import {
   approveHostelVerification,
   rejectHostelVerification,
 } from "../controllers/adminVerificationController.js";
-import { protect } from "../middlewares/authMiddleware.js";
-import { adminMiddleware } from "../middlewares/adminMiddleware.js";
+import { adminProtect } from "../middlewares/adminMiddleware.js";
 
 const router = express.Router();
 
-// All routes are protected and require admin role
-router.use(protect, adminMiddleware);
+// All routes are protected — requires valid Admin JWT
+router.use(adminProtect);
 
 // Identity Verification Admin Routes
 router.route("/identity")
