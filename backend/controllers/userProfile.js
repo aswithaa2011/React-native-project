@@ -65,6 +65,7 @@ export const updateUserProfile = async (req, res) => {
       }
     });
 
+    console.log(updates);
     const userProfile = await UserProfile.findByIdAndUpdate(
       req.user.id,
       { $set: updates },
@@ -77,12 +78,13 @@ export const updateUserProfile = async (req, res) => {
         message: "UserProfile not found",
       });
     }
-
+    console.log(userProfile)
     return res.status(200).json({
       success: true,
       message: "UserProfile updated successfully",
       data: userProfile,
     });
+
   } catch (error) {
     console.error("Error updating UserProfile:", error);
     return res.status(500).json({

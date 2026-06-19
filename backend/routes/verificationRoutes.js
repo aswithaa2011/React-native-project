@@ -24,4 +24,4 @@ router.route("/hostel")
   .get(getHostelVerifications)
   .put(updateHostelVerification);
 
-export default router;
+export default router;a
