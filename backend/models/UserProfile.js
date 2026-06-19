@@ -25,7 +25,7 @@ const userProfileSchema = new mongoose.Schema(
         verificationId: { type: String },
         isVerified: { type: Boolean, default: false },
       },
-      hostelOwner: {
+      propertyOwner: {
         verificationId: { type: String },
         isVerified: { type: Boolean, default: false },
       },

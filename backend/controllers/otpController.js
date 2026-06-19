@@ -81,7 +81,7 @@ export const verifyOTP = async (req, res) => {
 
     let profile = await UserProfile.findOneAndUpdate(
       { email },
-      { $set: { email, "verification.identity.isVerified": true } },
+      { $set: { email } },
       { new: true, upsert: true }
     );
 

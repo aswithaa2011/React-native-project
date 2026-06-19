@@ -4,10 +4,10 @@ import {
   getIdentityVerificationById,
   approveIdentityVerification,
   rejectIdentityVerification,
-  getHostelVerifications,
-  getHostelVerificationById,
-  approveHostelVerification,
-  rejectHostelVerification,
+  getPropertyVerifications,
+  getPropertyVerificationById,
+  approvePropertyVerification,
+  rejectPropertyVerification,
 } from "../controllers/adminVerificationController.js";
 import { adminProtect } from "../middlewares/adminMiddleware.js";
 
@@ -29,17 +29,28 @@ router.route("/identity/:id/approve")
 router.route("/identity/:id/reject")
   .patch(rejectIdentityVerification);
 
-// Hostel Verification Admin Routes
-router.route("/hostel")
-  .get(getHostelVerifications);
+// Property Verification Admin Routes
+router.route("/property")
+  .get(getPropertyVerifications);
 
-router.route("/hostel/:id")
-  .get(getHostelVerificationById);
+router.route("/property/:id")
+  .get(getPropertyVerificationById);
 
-router.route("/hostel/:id/approve")
-  .patch(approveHostelVerification);
+router.route("/property/:id/approve")
+  .patch(approvePropertyVerification);
 
-router.route("/hostel/:id/reject")
-  .patch(rejectHostelVerification);
+router.route("/property/:id/reject")
+  .patch(rejectPropertyVerification);
 
 export default router;
+
+
+// /api/admin/verify/identity
+// /api/admin/verify/identity/:id
+// /api/admin/verify/identity/:id/approve
+// /api/admin/verify/identity/:id/reject
+
+// /api/admin/verify/property
+// /api/admin/verify/property/:id
+// /api/admin/verify/property/:id/approve
+// /api/admin/verify/property/:id/reject

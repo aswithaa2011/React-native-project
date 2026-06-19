@@ -23,7 +23,35 @@ app.use("/api/auth", authRoutes);
 app.use("/api/profile", userProfileRoutes);
 app.use("/api/verification", verificationRoutes);
 app.use("/api/admin/auth", adminAuthRoutes);
-app.use("/api/admin/verification", adminVerificationRoutes);
+app.use("/api/admin/verify", adminVerificationRoutes);
+
+
+// /api/auth/sendOtp
+// /api/auth/verifyOtp
+// /api/auth/resendOtp
+
+// /api/profile
+// /api/profile/update
+// /api/profile/:userId
+
+
+// /api/verification/identity
+// /api/verification/hostel
+
+// /api/admin/auth/register
+// /api/admin/auth/login
+
+// /api/admin/verify/identity
+// /api/admin/verify/identity/:id
+// /api/admin/verify/identity/:id/approve
+// /api/admin/verify/identity/:id/reject
+
+// /api/admin/verify/hostel
+// /api/admin/verify/hostel/:id
+// /api/admin/verify/hostel/:id/approve
+// /api/admin/verify/hostel/:id/reject
+
+
 
 // Error Middleware
 app.use(errorHandler);

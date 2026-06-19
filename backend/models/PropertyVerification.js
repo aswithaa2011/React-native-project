@@ -1,15 +1,15 @@
 import mongoose from "mongoose";
 
-const hostelVerificationSchema = new mongoose.Schema(
+const propertyVerificationSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "UserProfile",
       required: true,
     },
-    hostelId: {
+    propertyId: {
       type: String,
-      ref: "Hostel",
+      ref: "Property",
       required: true,
     },
     verificationType: {
@@ -50,7 +50,7 @@ const hostelVerificationSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Only one verification per hostel
-hostelVerificationSchema.index({ hostelId: 1 }, { unique: true });
+// Only one verification per property
+propertyVerificationSchema.index({ propertyId: 1 }, { unique: true });
 
-export default mongoose.model("HostelVerification", hostelVerificationSchema);
+export default mongoose.model("PropertyVerification", propertyVerificationSchema);

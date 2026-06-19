@@ -3,9 +3,9 @@ import {
   submitIdentityVerification,
   getIdentityVerification,
   updateIdentityVerification,
-  submitHostelVerification,
-  getHostelVerifications,
-  updateHostelVerification,
+  submitPropertyVerification,
+  getPropertyVerifications,
+  updatePropertyVerification,
 } from "../controllers/verificationController.js";
 import { protect } from "../middlewares/authMiddleware.js";
 
@@ -19,9 +19,13 @@ router.route("/identity")
   .get(getIdentityVerification)
   .put(updateIdentityVerification);
 
-router.route("/hostel")
-  .post(submitHostelVerification)
-  .get(getHostelVerifications)
-  .put(updateHostelVerification);
+router.route("/property")
+  .post(submitPropertyVerification)
+  .get(getPropertyVerifications)
+  .put(updatePropertyVerification);
 
 export default router;
+
+
+// /api/verification/identity
+// /api/verification/property

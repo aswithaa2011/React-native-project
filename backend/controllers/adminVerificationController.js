@@ -1,8 +1,8 @@
 import asyncHandler from "../utils/asyncHandler.js";
 import IdentityVerification from "../models/IdentityVerification.js";
-import HostelVerification from "../models/HostelVerification.js";
+import PropertyVerification from "../models/PropertyVerification.js";
 import UserProfile from "../models/UserProfile.js";
-import Hostel from "../models/Hostel.js";
+import Property from "../models/Hostel.js";
 // @desc    Get all identity verification requests
 // @route   GET /api/admin/verification/identity
 // @access  Private/Admin
@@ -108,19 +108,19 @@ export const rejectIdentityVerification = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Get all hostel verification requests
-// @route   GET /api/admin/verification/hostel
+// @desc    Get all property verification requests
+// @route   GET /api/admin/verification/property
 // @access  Private/Admin
-export const getHostelVerifications = asyncHandler(async (req, res) => {
+export const getPropertyVerifications = asyncHandler(async (req, res) => {
   const { status } = req.query;
   const filter = {};
   if (status) {
     filter.status = status;
   }
 
-  const verifications = await HostelVerification.find(filter)
+  const verifications = await PropertyVerification.find(filter)
     .populate("userId", "fullName email")
-    .populate("hostelId", "propertyName");
+    .populate("propertyId", "propertyName");
 
   res.status(200).json({
     success: true,
@@ -129,17 +129,17 @@ export const getHostelVerifications = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Get single hostel verification detail
-// @route   GET /api/admin/verification/hostel/:id
+// @desc    Get single property verification detail
+// @route   GET /api/admin/verification/property/:id
 // @access  Private/Admin
-export const getHostelVerificationById = asyncHandler(async (req, res) => {
-  const verification = await HostelVerification.findById(req.params.id)
+export const getPropertyVerificationById = asyncHandler(async (req, res) => {
+  const verification = await PropertyVerification.findById(req.params.id)
     .populate("userId", "fullName email")
-    .populate("hostelId", "propertyName");
+    .populate("propertyId", "propertyName");
 
   if (!verification) {
     res.status(404);
-    throw new Error("Hostel verification not found");
+    throw new Error("Property verification not found");
   }
 
   res.status(200).json({
@@ -148,15 +148,15 @@ export const getHostelVerificationById = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Approve hostel verification
-// @route   PATCH /api/admin/verification/hostel/:id/approve
+// @desc    Approve property verification
+// @route   PATCH /api/admin/verification/property/:id/approve
 // @access  Private/Admin
-export const approveHostelVerification = asyncHandler(async (req, res) => {
-  const verification = await HostelVerification.findById(req.params.id);
+export const approvePropertyVerification = asyncHandler(async (req, res) => {
+  const verification = await PropertyVerification.findById(req.params.id);
 
   if (!verification) {
     res.status(404);
-    throw new Error("Hostel verification not found");
+    throw new Error("Property verification not found");
   }
 
   if (verification.status === "Approved") {
@@ -170,25 +170,25 @@ export const approveHostelVerification = asyncHandler(async (req, res) => {
   
   await verification.save();
 
-  // Update user profile for hostel verification
+  // Update user profile for property verification
   const user = await UserProfile.findById(verification.userId);
   if (user) {
-    user.verification.hostelOwner.isVerified = true;
-    user.verification.hostelOwner.verificationId = verification._id;
+    user.verification.propertyOwner.isVerified = true;
+    user.verification.propertyOwner.verificationId = verification._id;
     await user.save();
   }
 
   res.status(200).json({
     success: true,
-    message: "Hostel verification approved successfully",
+    message: "Property verification approved successfully",
     data: verification,
   });
 });
 
-// @desc    Reject hostel verification
-// @route   PATCH /api/admin/verification/hostel/:id/reject
+// @desc    Reject property verification
+// @route   PATCH /api/admin/verification/property/:id/reject
 // @access  Private/Admin
-export const rejectHostelVerification = asyncHandler(async (req, res) => {
+export const rejectPropertyVerification = asyncHandler(async (req, res) => {
   const { reason } = req.body;
 
   if (!reason) {
@@ -196,11 +196,11 @@ export const rejectHostelVerification = asyncHandler(async (req, res) => {
     throw new Error("Rejection reason is required");
   }
 
-  const verification = await HostelVerification.findById(req.params.id);
+  const verification = await PropertyVerification.findById(req.params.id);
 
   if (!verification) {
     res.status(404);
-    throw new Error("Hostel verification not found");
+    throw new Error("Property verification not found");
   }
 
   verification.status = "Rejected";
@@ -212,7 +212,7 @@ export const rejectHostelVerification = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    message: "Hostel verification rejected successfully",
+    message: "Property verification rejected successfully",
     data: verification,
   });
 });

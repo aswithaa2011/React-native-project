@@ -1,7 +1,7 @@
 import asyncHandler from "../utils/asyncHandler.js";
 import IdentityVerification from "../models/IdentityVerification.js";
-import HostelVerification from "../models/HostelVerification.js";
-import Hostel from "../models/Hostel.js";
+import PropertyVerification from "../models/PropertyVerification.js";
+import Property from "../models/Hostel.js";
 
 // @desc    Submit identity verification
 // @route   POST /api/verification/identity
@@ -106,44 +106,44 @@ export const updateIdentityVerification = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Submit hostel verification
-// @route   POST /api/verification/hostel
+// @desc    Submit property verification
+// @route   POST /api/verification/property
 // @access  Private
-export const submitHostelVerification = asyncHandler(async (req, res) => {
-  const { hostelId, documentType, documentNumber, documentImage } = req.body;
+export const submitPropertyVerification = asyncHandler(async (req, res) => {
+  const { propertyId, documentType, documentNumber, documentImage } = req.body;
 
-  if (req.user.role !== "HostelOwner") {
+  if (req.user.role !== "PropertyOwner") {
     res.status(403);
-    throw new Error("Only Hostel Owners can submit hostel verifications");
+    throw new Error("Only Property Owners can submit property verifications");
   }
 
-  const hostel = await Hostel.findOne({ hostelId });
+  const property = await Property.findOne({ propertyId });
 
-  if (!hostel) {
+  if (!property) {
     res.status(404);
-    throw new Error("Hostel not found");
+    throw new Error("Property not found");
   }
 
-  if (hostel.createdBy !== req.user._id.toString()) {
+  if (property.createdBy !== req.user._id.toString()) {
     res.status(403);
-    throw new Error("User must be the creator of the hostel");
+    throw new Error("User must be the creator of the property");
   }
 
-  const existingVerification = await HostelVerification.findOne({ hostelId });
+  const existingVerification = await PropertyVerification.findOne({ propertyId });
 
   if (existingVerification) {
     if (existingVerification.status === "Pending" || existingVerification.status === "Approved") {
       res.status(400);
-      throw new Error(`Verification for this hostel already exists with status: ${existingVerification.status}`);
+      throw new Error(`Verification for this property already exists with status: ${existingVerification.status}`);
     } else if (existingVerification.status === "Rejected") {
       res.status(400);
-      throw new Error(`Verification for this hostel was rejected. Please use PUT to update it.`);
+      throw new Error(`Verification for this property was rejected. Please use PUT to update it.`);
     }
   }
 
-  const verification = await HostelVerification.create({
+  const verification = await PropertyVerification.create({
     userId: req.user._id,
-    hostelId,
+    propertyId,
     documentType,
     documentNumber,
     documentImage,
@@ -159,11 +159,11 @@ export const submitHostelVerification = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Get logged-in user's hostel verification
-// @route   GET /api/verification/hostel
+// @desc    Get logged-in user's property verifications
+// @route   GET /api/verification/property
 // @access  Private
-export const getHostelVerifications = asyncHandler(async (req, res) => {
-  const verifications = await HostelVerification.find({ userId: req.user._id });
+export const getPropertyVerifications = asyncHandler(async (req, res) => {
+  const verifications = await PropertyVerification.find({ userId: req.user._id });
 
   res.status(200).json({
     success: true,
@@ -171,22 +171,22 @@ export const getHostelVerifications = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Update rejected hostel verification
-// @route   PUT /api/verification/hostel
+// @desc    Update rejected property verification
+// @route   PUT /api/verification/property
 // @access  Private
-export const updateHostelVerification = asyncHandler(async (req, res) => {
-  const { hostelId, documentType, documentNumber, documentImage } = req.body;
+export const updatePropertyVerification = asyncHandler(async (req, res) => {
+  const { propertyId, documentType, documentNumber, documentImage } = req.body;
 
-  if (!hostelId) {
+  if (!propertyId) {
     res.status(400);
-    throw new Error("Hostel ID is required");
+    throw new Error("Property ID is required");
   }
 
-  const verification = await HostelVerification.findOne({ hostelId, userId: req.user._id });
+  const verification = await PropertyVerification.findOne({ propertyId, userId: req.user._id });
 
   if (!verification) {
     res.status(404);
-    throw new Error("Hostel verification not found for this hostel");
+    throw new Error("Property verification not found for this property");
   }
 
   if (verification.status !== "Rejected") {
