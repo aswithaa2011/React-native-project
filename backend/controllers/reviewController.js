@@ -3,7 +3,14 @@ import Review from "../models/rating.js"
 // Create Review
 export const createReview = async (req,res) => {
   try {
-    const review = await Review.create(req.body);
+    const reviewImages = req.files
+  ? req.files.map((file) => file.path)
+  : [];
+
+const review = await Review.create({
+  ...req.body,
+  reviewImages,
+});
 
     res.status(201).json({
       success: true,
@@ -62,60 +69,3 @@ export const getReviewById = async (req, res) => {
   }
 };
 
-// Update Review
-export const updateReview = async (req, res) => {
-  try {
-    const review = await Review.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
-
-    if (!review) {
-      return res.status(404).json({
-        success: false,
-        message: "Review not found",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Review updated successfully",
-      data: review,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
-
-// Delete Review
-export const deleteReview = async (req, res) => {
-  try {
-    const review = await Review.findByIdAndDelete(
-      req.params.id
-    );
-
-    if (!review) {
-      return res.status(404).json({
-        success: false,
-        message: "Review not found",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Review deleted successfully",
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};

@@ -8,18 +8,6 @@ const amenitySchema = new mongoose.Schema(
       trim: true,
     },
 
-    description: {
-      type: String,
-      trim: true,
-      default: "",
-    },
-
-    icon: {
-      type: String,
-      trim: true,
-      default: "",
-    },
-
     isActive: {
       type: Boolean,
       default: true,

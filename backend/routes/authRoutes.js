@@ -5,6 +5,8 @@ import {
   resendOTP,
 } from "../controllers/otpController.js";
 
+
+
 const router = express.Router();
 
 router.post("/sendOtp", sendOTP);
