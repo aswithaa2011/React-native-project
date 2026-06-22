@@ -4,13 +4,20 @@ import Hostel from "../models/Hostel.js";
 // Create Hostel
 export const createHostel = async (req, res) => {
   try {
-    const hostel = await Hostel.create(req.body);
+
+    const hostelImages = (req.files || []).map((file) => `/uploads/${file.filename}`);
+
+    const hostel = await Hostel.create({
+      ...req.body,
+      hostelImages,
+    });
 
     return res.status(201).json({
       success: true,
       message: "Hostel created successfully",
       data: hostel,
     });
+
   } catch (error) {
     return res.status(500).json({
       success: false,

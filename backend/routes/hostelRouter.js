@@ -1,4 +1,7 @@
 import express from "express";
+import upload from "../middleware/upload.js";
+
+
 
 import {
   createHostel,
@@ -10,7 +13,7 @@ import {
 
 const hostelRouter = express.Router();
 
-hostelRouter.post("/create", createHostel);
+hostelRouter.post("/create", upload.array("hostelImages", 10), createHostel);
 
 hostelRouter.get("/get", getAllHostels);
 
@@ -19,6 +22,7 @@ hostelRouter.get("/getbyid/:hostelId", getHostelById);
 hostelRouter.put("/update/:hostelId", updateHostel);
 
 hostelRouter.delete("/delete/:hostelId", deleteHostel);
+
 
 export default hostelRouter
 

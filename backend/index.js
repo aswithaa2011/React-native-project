@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import connectDb from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import hostelRouter from "./routes/hostelRouter.js";
+import path from "path";
+import { fileURLToPath } from "url";
 
 
 
@@ -17,7 +19,15 @@ app.use(cors());
 app.use(express.json());
 
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
+app.use(
+  "/uploads",
+  express.static(
+    path.join(__dirname, "uploads")
+  )
+);
 
 app.use("/api/auth", authRoutes);
 
