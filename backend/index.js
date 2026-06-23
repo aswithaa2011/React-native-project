@@ -40,7 +40,8 @@ app.use("/api/profile", userProfileRoutes);
 app.use("/api/verification", verificationRoutes);
 app.use("/api/admin/auth", adminAuthRoutes);
 app.use("/api/admin/verify", adminVerificationRoutes);
-
+app.use("/api/review", reviewRoutes);
+app.use("/api/hostels", hostelRouter);
 
 // /api/auth/sendOtp
 // /api/auth/verifyOtp
@@ -67,13 +68,15 @@ app.use("/api/admin/verify", adminVerificationRoutes);
 // /api/admin/verify/hostel/:id/approve
 // /api/admin/verify/hostel/:id/reject
 
+// /api/review/create
+// /api/review/getall
+// /api/review/getone/:id
 
+// /api/hostels
 
-// Error Middleware
+// Error Middleware (must be last)
 app.use(errorHandler);
-app.use("/api/review",reviewRoutes)
 
-app.use("/api/hostels", hostelRouter);
 
 
 const port = process.env.PORT || 3000;
