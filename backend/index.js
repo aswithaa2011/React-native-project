@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import connectDb from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
+import reviewRoutes from "./routes/reviewRoutes.js"
 import hostelRouter from "./routes/hostelRouter.js";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -30,6 +31,7 @@ app.use(
 );
 
 app.use("/api/auth", authRoutes);
+app.use("/api/review",reviewRoutes)
 
 app.use("/api/hostels", hostelRouter);
 
