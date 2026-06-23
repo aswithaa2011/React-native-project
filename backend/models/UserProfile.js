@@ -39,6 +39,11 @@ const userProfileSchema = new mongoose.Schema(
       type: Array,
       default: [],
     },
+    accountType: {
+      type: String,
+      enum: ["public", "private"],
+      default: "public",
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "UserProfile",

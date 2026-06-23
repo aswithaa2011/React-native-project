@@ -33,11 +33,11 @@ app.use("/api/admin/verify", adminVerificationRoutes);
 // /api/profile
 // /api/profile/update
 // /api/profile/:userId
-
+// /api/profile/account-type
 
 // /api/verification/identity
 // /api/verification/hostel
-
+  
 // /api/admin/auth/register
 // /api/admin/auth/login
 

@@ -30,7 +30,8 @@ export const createUserProfile = async (req, res) => {
 
 export const getUserProfile = async (req, res) => {
   try {
-    const profileId = req.user?.id || req.params.userId;
+    const requesterId = req.user?.id?.toString();
+    const profileId = req.params.userId || requesterId;
     const profile = await UserProfile.findById(profileId);
 
     if (!profile) {
@@ -40,8 +41,26 @@ export const getUserProfile = async (req, res) => {
       });
     }
 
+    const isOwnProfile = requesterId === profile._id.toString();
+
+    // If viewing another user's private account, return limited info
+    if (!isOwnProfile && profile.accountType === "private") {
+      return res.status(200).json({
+        success: true,
+        isPrivate: true,
+        data: {
+          _id: profile._id,
+          name: profile.name,
+          profileImage: profile.profileImage,
+          role: profile.role,
+          accountType: profile.accountType,
+        },
+      });
+    }
+
     return res.status(200).json({
       success: true,
+      isPrivate: false,
       data: profile,
     });
   } catch (error) {
@@ -52,6 +71,7 @@ export const getUserProfile = async (req, res) => {
     });
   }
 };
+
 
 export const updateUserProfile = async (req, res) => {
   try {
@@ -87,6 +107,48 @@ export const updateUserProfile = async (req, res) => {
 
   } catch (error) {
     console.error("Error updating UserProfile:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+// Toggle account visibility: "public" or "private"
+export const updateAccountType = async (req, res) => {
+  try {
+    const { accountType } = req.body;
+
+    if (!accountType || !["public", "private"].includes(accountType)) {
+      return res.status(400).json({
+        success: false,
+        message: "accountType must be either 'public' or 'private'",
+      });
+    }
+
+    const userProfile = await UserProfile.findByIdAndUpdate(
+      req.user.id,
+      { $set: { accountType } },
+      { new: true }
+    );
+
+    if (!userProfile) {
+      return res.status(404).json({
+        success: false,
+        message: "UserProfile not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Account is now ${accountType}`,
+      data: {
+        _id: userProfile._id,
+        accountType: userProfile.accountType,
+      },
+    });
+  } catch (error) {
+    console.error("Error updating account type:", error);
     return res.status(500).json({
       success: false,
       message: "Server error",
