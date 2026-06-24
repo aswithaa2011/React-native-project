@@ -9,7 +9,7 @@ import adminVerificationRoutes from "./routes/adminVerificationRoutes.js";
 import adminAuthRoutes from "./routes/adminAuthRoutes.js";
 import { errorHandler } from "./middlewares/errorMiddleware.js";
 import reviewRoutes from "./routes/reviewRoutes.js"
-import hostelRouter from "./routes/hostelRouter.js";
+import propertyRouter from "./routes/propertyRouter.js";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -41,7 +41,7 @@ app.use("/api/verification", verificationRoutes);
 app.use("/api/admin/auth", adminAuthRoutes);
 app.use("/api/admin/verify", adminVerificationRoutes);
 app.use("/api/review", reviewRoutes);
-app.use("/api/hostels", hostelRouter);
+app.use("/api/properties", propertyRouter);
 
 // /api/auth/sendOtp
 // /api/auth/verifyOtp
@@ -53,7 +53,7 @@ app.use("/api/hostels", hostelRouter);
 // /api/profile/account-type
 
 // /api/verification/identity
-// /api/verification/hostel
+// /api/verification/property
   
 // /api/admin/auth/register
 // /api/admin/auth/login
@@ -63,16 +63,16 @@ app.use("/api/hostels", hostelRouter);
 // /api/admin/verify/identity/:id/approve
 // /api/admin/verify/identity/:id/reject
 
-// /api/admin/verify/hostel
-// /api/admin/verify/hostel/:id
-// /api/admin/verify/hostel/:id/approve
-// /api/admin/verify/hostel/:id/reject
+// /api/admin/verify/property
+// /api/admin/verify/property/:id
+// /api/admin/verify/property/:id/approve
+// /api/admin/verify/property/:id/reject
 
 // /api/review/create
 // /api/review/getall
 // /api/review/getone/:id
 
-// /api/hostels
+// /api/properties
 
 // Error Middleware (must be last)
 app.use(errorHandler);

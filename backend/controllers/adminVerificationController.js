@@ -2,7 +2,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import IdentityVerification from "../models/IdentityVerification.js";
 import PropertyVerification from "../models/PropertyVerification.js";
 import UserProfile from "../models/UserProfile.js";
-import Property from "../models/Hostel.js";
+import Property from "../models/Property.js";
 // @desc    Get all identity verification requests
 // @route   GET /api/admin/verification/identity
 // @access  Private/Admin

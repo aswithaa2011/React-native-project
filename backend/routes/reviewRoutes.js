@@ -8,7 +8,7 @@ getReviewById,
 
 } from "../controllers/reviewController.js";
 
-import uploadReviewImages from "../middleware/reviewImage.js"
+import uploadReviewImages from "../middlewares/reviewImage.js"
 
 const router = express.Router();
 
