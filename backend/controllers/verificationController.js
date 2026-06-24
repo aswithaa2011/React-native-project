@@ -1,7 +1,7 @@
 import asyncHandler from "../utils/asyncHandler.js";
 import IdentityVerification from "../models/IdentityVerification.js";
 import PropertyVerification from "../models/PropertyVerification.js";
-import Property from "../models/Hostel.js";
+import Property from "../models/Property.js";
 
 // @desc    Submit identity verification
 // @route   POST /api/verification/identity

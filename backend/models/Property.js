@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 
-const hostelSchema = new mongoose.Schema(
+const propertySchema = new mongoose.Schema(
   {
-    hostelId: {
+    propertyId: {
       type: String,
       required: true,
       unique: true,
@@ -14,7 +14,7 @@ const hostelSchema = new mongoose.Schema(
       trim: true,
     },
 
-    hostelType: {
+    propertyType: {
       type: String,
       enum: ["Boys", "Girls", "Co-Living"],
       required: true,
@@ -47,7 +47,7 @@ const hostelSchema = new mongoose.Schema(
       longitude: Number,
     },
 
-    hostelImages: [String],
+    propertyImages: [String],
 
     about: {
       type: String,
@@ -143,7 +143,6 @@ const hostelSchema = new mongoose.Schema(
   }
 );
 
-const Hostel = mongoose.model("Hostel", hostelSchema);
+const Property = mongoose.model("Property", propertySchema);
 
-export default Hostel;
-
+export default Property;
