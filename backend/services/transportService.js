@@ -52,7 +52,7 @@ export const isDuplicateName = async (name, excludeHubId = null) => {
 /**
  * Build a MongoDB $near geo filter.
  *
- * @param {number} lat
+ * @param {number} lat  
  * @param {number} lon
  * @param {number} [maxDistanceM=5000]
  * @returns {object}  MongoDB location filter
