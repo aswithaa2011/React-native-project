@@ -8,7 +8,7 @@ const propertyVerificationSchema = new mongoose.Schema(
       required: true,
     },
     propertyId: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Property",
       required: true,
     },
@@ -50,7 +50,7 @@ const propertyVerificationSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Only one verification per property
+// Only one active verification per property
 propertyVerificationSchema.index({ propertyId: 1 }, { unique: true });
 
 export default mongoose.model("PropertyVerification", propertyVerificationSchema);

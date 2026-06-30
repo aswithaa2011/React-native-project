@@ -14,4 +14,3 @@ router.post("/verifyOtp", verifyOTP);
 router.post("/resendOtp", resendOTP);
 
 export default router;
-

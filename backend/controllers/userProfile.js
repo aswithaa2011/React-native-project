@@ -28,10 +28,33 @@ export const createUserProfile = async (req, res) => {
   }
 };
 
+export const getMyProfile = async (req, res) => {
+  try {
+    const profile = await UserProfile.findById(req.user.id);
+
+    if (!profile) {
+      return res.status(404).json({
+        success: false,
+        message: "UserProfile not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: profile,
+    });
+  } catch (error) {
+    console.error("Error getting my profile:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
 export const getUserProfile = async (req, res) => {
   try {
-    const requesterId = req.user?.id?.toString();
-    const profileId = req.params.userId || requesterId;
+    const profileId = req.params.userId;
     const profile = await UserProfile.findById(profileId);
 
     if (!profile) {
@@ -41,30 +64,27 @@ export const getUserProfile = async (req, res) => {
       });
     }
 
-    const isOwnProfile = requesterId === profile._id.toString();
-
-    // If viewing another user's private account, return limited info
-    if (!isOwnProfile && profile.accountType === "private") {
+    if (profile.accountType === "public") {
       return res.status(200).json({
         success: true,
-        isPrivate: true,
         data: {
           _id: profile._id,
           name: profile.name,
           profileImage: profile.profileImage,
-          role: profile.role,
-          accountType: profile.accountType,
+        },
+      });
+    } else {
+      return res.status(200).json({
+        success: true,
+        data: {
+          _id: profile._id,
+          name: "Unknown User",
+          profileImage: null,
         },
       });
     }
-
-    return res.status(200).json({
-      success: true,
-      isPrivate: false,
-      data: profile,
-    });
   } catch (error) {
-    console.error("Error getting UserProfile:", error);
+    console.error("Error getting user profile:", error);
     return res.status(500).json({
       success: false,
       message: "Server error",

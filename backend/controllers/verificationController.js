@@ -1,7 +1,6 @@
 import asyncHandler from "../utils/asyncHandler.js";
 import IdentityVerification from "../models/IdentityVerification.js";
 import PropertyVerification from "../models/PropertyVerification.js";
-import Property from "../models/Property.js";
 
 // @desc    Submit identity verification
 // @route   POST /api/verification/identity
@@ -112,22 +111,7 @@ export const updateIdentityVerification = asyncHandler(async (req, res) => {
 export const submitPropertyVerification = asyncHandler(async (req, res) => {
   const { propertyId, documentType, documentNumber, documentImage } = req.body;
 
-  if (req.user.role !== "PropertyOwner") {
-    res.status(403);
-    throw new Error("Only Property Owners can submit property verifications");
-  }
-
-  const property = await Property.findOne({ propertyId });
-
-  if (!property) {
-    res.status(404);
-    throw new Error("Property not found");
-  }
-
-  if (property.createdBy !== req.user._id.toString()) {
-    res.status(403);
-    throw new Error("User must be the creator of the property");
-  }
+  // Any authenticated user may apply — role is promoted only after admin approval.
 
   const existingVerification = await PropertyVerification.findOne({ propertyId });
 
@@ -137,7 +121,7 @@ export const submitPropertyVerification = asyncHandler(async (req, res) => {
       throw new Error(`Verification for this property already exists with status: ${existingVerification.status}`);
     } else if (existingVerification.status === "Rejected") {
       res.status(400);
-      throw new Error(`Verification for this property was rejected. Please use PUT to update it.`);
+      throw new Error(`Verification for this property was rejected. Please use PUT to resubmit.`);
     }
   }
 
@@ -155,6 +139,7 @@ export const submitPropertyVerification = asyncHandler(async (req, res) => {
 
   res.status(201).json({
     success: true,
+    message: "Property verification request submitted successfully. Awaiting admin review.",
     data: verification,
   });
 });

@@ -29,6 +29,8 @@ export const sendOTP = async (req, res) => {
       expiresAt: new Date(Date.now() + 5 * 60 * 1000),
     });
 
+    console.log(otp)
+
     await sendEmail(email, otp);
 
     return res.status(200).json({
@@ -79,11 +81,13 @@ export const verifyOTP = async (req, res) => {
       });
     }
 
-    let profile = await UserProfile.findOneAndUpdate(
-      { email },
-      { $set: { email } },
-      { new: true, upsert: true }
-    );
+    let profile = await UserProfile.findOne({ email });
+    let isNewUser = false;
+
+    if (!profile) {
+      profile = await UserProfile.create({ email });
+      isNewUser = true;
+    }
 
     await Otp.deleteOne({ email });
 
@@ -95,7 +99,7 @@ export const verifyOTP = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Email verified successfully",
+      message: isNewUser ? "Registration successful" : "Login successful",
       token,
       user: profile,
     });
