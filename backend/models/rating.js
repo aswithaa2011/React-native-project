@@ -3,14 +3,17 @@ import mongoose from "mongoose";
 const reviewSchema = new mongoose.Schema(
   {
     propertyId: {
-      type: Object,
-      default:{}
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Property",
+      required: true,
+
     },
 
     user: {
       userId: {
-        type: Object,
-      default:{}
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "UserProfile",
+        required: true,
       },
     },
 
@@ -34,54 +37,14 @@ const reviewSchema = new mongoose.Schema(
     },
 
     categoryRatings: {
-      cleanliness: {
-        type: Number,
-        min: 1,
-        max: 5,
-      },
-
-      food: {
-        type: Number,
-        min: 1,
-        max: 5,
-      },
-
-      security: {
-        type: Number,
-        min: 1,
-        max: 5,
-      },
-
-      wifi: {
-        type: Number,
-        min: 1,
-        max: 5,
-      },
-
-      staff: {
-        type: Number,
-        min: 1,
-        max: 5,
-      },
-
-      location: {
-        type: Number,
-        min: 1,
-        max: 5,
-      },
-
-      waterFacility :{
-        type: Number,
-        min: 1,
-        max: 5,
-        
-      },
-
-      valueForMoney: {
-        type: Number,
-        min: 1,
-        max: 5,
-      },
+      cleanliness: { type: Number, default: 0 },
+      food: { type: Number, default: 0 },
+      security: { type: Number, default: 0 },
+      wifi: { type: Number, default: 0 },
+      staff: { type: Number, default: 0 },
+      location: { type: Number, default: 0 },
+      waterFacility: { type: Number, default: 0 },
+      valueForMoney: { type: Number, default: 0 },
     },
 
     pros: [
@@ -99,8 +62,8 @@ const reviewSchema = new mongoose.Schema(
     ],
 
     reviewImages: {
-    type: [String],
-    default: [],
+      type: [String],
+      default: [],
     },
 
     recommend: {
@@ -122,6 +85,9 @@ const reviewSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+// Optimize query for fetching reviews by property sorted by newest first
+reviewSchema.index({ propertyId: 1, createdAt: -1 });
 
 const Review = mongoose.model("Review", reviewSchema);
 

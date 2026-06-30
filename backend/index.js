@@ -10,10 +10,11 @@ import adminAuthRoutes from "./routes/adminAuthRoutes.js";
 import { errorHandler } from "./middlewares/errorMiddleware.js";
 import reviewRoutes from "./routes/reviewRoutes.js"
 import propertyRouter from "./routes/propertyRouter.js";
+import transportRouter from "./routes/transportRoutes.js";
+import adminTransportRoutes from "./routes/adminTransportRoutes.js";
+import searchRoutes from "./routes/searchRoutes.js";
 import path from "path";
 import { fileURLToPath } from "url";
-
-
 
 
 dotenv.config();
@@ -42,37 +43,72 @@ app.use("/api/admin/auth", adminAuthRoutes);
 app.use("/api/admin/verify", adminVerificationRoutes);
 app.use("/api/review", reviewRoutes);
 app.use("/api/properties", propertyRouter);
+app.use("/api/property/search", searchRoutes);
+app.use("/api/transport", transportRouter);
+app.use("/api/admin/transport", adminTransportRoutes);
 
-// /api/auth/sendOtp
-// /api/auth/verifyOtp
-// /api/auth/resendOtp
+// /api/auth/sendOtp  #
+// /api/auth/verifyOtp #
+// /api/auth/resendOtp #
 
-// /api/profile
-// /api/profile/update
-// /api/profile/:userId
-// /api/profile/account-type
+// /api/profile #
+// /api/profile/update #
+// /api/profile/:userId #
+// /api/profile/account-type #
 
-// /api/verification/identity
-// /api/verification/property
-  
-// /api/admin/auth/register
-// /api/admin/auth/login
+// /api/verification/identity #
+// /api/verification/property #
 
-// /api/admin/verify/identity
-// /api/admin/verify/identity/:id
-// /api/admin/verify/identity/:id/approve
-// /api/admin/verify/identity/:id/reject
+// /api/admin/auth/register #
+// /api/admin/auth/login #
 
-// /api/admin/verify/property
-// /api/admin/verify/property/:id
-// /api/admin/verify/property/:id/approve
-// /api/admin/verify/property/:id/reject
+// /api/admin/verify/identity #
+// /api/admin/verify/identity/:id #
+// /api/admin/verify/identity/:id/approve #
+// /api/admin/verify/identity/:id/reject #
 
-// /api/review/create
+// /api/admin/verify/property #
+// /api/admin/verify/property/:id #
+// /api/admin/verify/property/:id/approve #
+// /api/admin/verify/property/:id/reject #
+
+// /api/review/create 
 // /api/review/getall
 // /api/review/getone/:id
+// /api/review/property/:propertyId
 
-// /api/properties
+// /api/properties/create
+// /api/properties/get
+// /api/properties/details/:propertyId
+// /api/properties/getbyid/:id
+
+// /api/transport
+// /api/transport/nearby?latitude=&longitude=&radius=
+// /api/transport/:hubId
+
+// /api/admin/transport/dashboard
+// /api/admin/transport                 GET (paginated) | POST (create)
+// /api/admin/transport/:hubId          GET | PUT | DELETE
+// /api/admin/transport/:hubId/status   PATCH
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Error Middleware (must be last)
 app.use(errorHandler);

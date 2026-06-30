@@ -8,23 +8,29 @@ import {
   updateProperty,
   deleteProperty,
 } from "../controllers/propertyController.js";
+import { getPropertyWithTransport } from "../controllers/transportController.js";
 
 const propertyRouter = express.Router();
 
-propertyRouter.post("/create", upload.array("propertyImages", 10), createProperty);
+propertyRouter.post("/create", upload.array("propertyImages", 5), createProperty);
 
 propertyRouter.get("/get", getAllProperties);
 
-propertyRouter.get("/getbyid/:propertyId", getPropertyById);
+// Full property details with nearby transport hubs
+propertyRouter.get("/details/:propertyId", getPropertyWithTransport);
 
-propertyRouter.put("/update/:propertyId", updateProperty);
+propertyRouter.get("/getbyid/:id", getPropertyById);
 
-propertyRouter.delete("/delete/:propertyId", deleteProperty);
+propertyRouter.put("/update/:id", updateProperty);
+
+propertyRouter.delete("/delete/:id", deleteProperty);
 
 export default propertyRouter;
 
 //http://localhost:5000/api/properties/create
 //http://localhost:5000/api/properties/get
-//http://localhost:5000/api/properties/getbyid/:propertyId
-//http://localhost:5000/api/properties/update/:propertyId
-//http://localhost:5000/api/properties/delete/:propertyId
+//http://localhost:5000/api/properties/details/:propertyId  ← property + nearby transport
+//http://localhost:5000/api/properties/getbyid/:id
+//http://localhost:5000/api/properties/update/:id
+//http://localhost:5000/api/properties/delete/:id
+

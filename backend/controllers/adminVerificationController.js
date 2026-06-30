@@ -2,7 +2,6 @@ import asyncHandler from "../utils/asyncHandler.js";
 import IdentityVerification from "../models/IdentityVerification.js";
 import PropertyVerification from "../models/PropertyVerification.js";
 import UserProfile from "../models/UserProfile.js";
-import Property from "../models/Property.js";
 // @desc    Get all identity verification requests
 // @route   GET /api/admin/verification/identity
 // @access  Private/Admin
@@ -119,7 +118,7 @@ export const getPropertyVerifications = asyncHandler(async (req, res) => {
   }
 
   const verifications = await PropertyVerification.find(filter)
-    .populate("userId", "fullName email")
+    .populate("userId", "name email")
     .populate("propertyId", "propertyName");
 
   res.status(200).json({
@@ -134,7 +133,7 @@ export const getPropertyVerifications = asyncHandler(async (req, res) => {
 // @access  Private/Admin
 export const getPropertyVerificationById = asyncHandler(async (req, res) => {
   const verification = await PropertyVerification.findById(req.params.id)
-    .populate("userId", "fullName email")
+    .populate("userId", "name email")
     .populate("propertyId", "propertyName");
 
   if (!verification) {
@@ -167,12 +166,13 @@ export const approvePropertyVerification = asyncHandler(async (req, res) => {
   verification.status = "Approved";
   verification.verifiedBy = req.user._id;
   verification.verifiedAt = Date.now();
-  
+
   await verification.save();
 
-  // Update user profile for property verification
+  // Promote the user's role to PropertyOwner and mark verification as verified
   const user = await UserProfile.findById(verification.userId);
   if (user) {
+    user.role = "PropertyOwner";
     user.verification.propertyOwner.isVerified = true;
     user.verification.propertyOwner.verificationId = verification._id;
     await user.save();
@@ -180,7 +180,7 @@ export const approvePropertyVerification = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    message: "Property verification approved successfully",
+    message: "Property verification approved. User has been promoted to PropertyOwner.",
     data: verification,
   });
 });
