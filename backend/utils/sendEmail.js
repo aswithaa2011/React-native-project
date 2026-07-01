@@ -2,10 +2,9 @@ import nodemailer from "nodemailer";
 
 const sendEmail = async (email, otp) => {
   if (!process.env.SMTP_EMAIL || !process.env.SMTP_PASS) {
-    throw new Error("EMAIL_USER and EMAIL_PASS must be set in .env");
+    throw new Error("SMTP_EMAIL and SMTP_PASS must be set in .env");
   }
   const transporter = nodemailer.createTransport({
-
     service: "gmail",
     port: 587,
     secure: false,
