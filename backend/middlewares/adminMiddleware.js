@@ -62,3 +62,4 @@ export const adminMiddleware = (req, res, next) => {
     throw new Error("Not authorized as an admin");
   }
 };
+

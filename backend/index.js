@@ -7,9 +7,11 @@ import userProfileRoutes from "./routes/userProfileRoutes.js";
 import verificationRoutes from "./routes/verificationRoutes.js";
 import adminVerificationRoutes from "./routes/adminVerificationRoutes.js";
 import adminAuthRoutes from "./routes/adminAuthRoutes.js";
+import amenityRoutes from "./routes/amenditiesRoutes.js";
 import { errorHandler } from "./middlewares/errorMiddleware.js";
 import reviewRoutes from "./routes/reviewRoutes.js"
 import propertyRouter from "./routes/propertyRouter.js";
+import otherAmenityRoutes from "./routes/otherAmentityRoutes.js"
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -42,6 +44,8 @@ app.use("/api/admin/auth", adminAuthRoutes);
 app.use("/api/admin/verify", adminVerificationRoutes);
 app.use("/api/review", reviewRoutes);
 app.use("/api/properties", propertyRouter);
+app.use("/api/amenities", amenityRoutes);
+app.use("/api/otherAmenities",otherAmenityRoutes);
 
 // /api/auth/sendOtp
 // /api/auth/verifyOtp
@@ -83,3 +87,5 @@ const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
+
+// http://localhost:5000/api/admin/auth/register
