@@ -27,9 +27,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-console.log(process.env.SMTP_EMAIL)
-console.log(process.env.SMTP_PASS)
-
 // Health check route
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok", message: "Server is running" });

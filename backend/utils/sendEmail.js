@@ -1,132 +1,100 @@
-import nodemailer from "nodemailer";
-import dns from "dns";
-import net from "net";
-import { promisify } from "util";
-
-const resolveDns = promisify(dns.resolve);
+import { BrevoClient } from '@getbrevo/brevo';
 
 // ------------------------------------------------------------------
-// Diagnostic function: Test DNS and TCP connection before Nodemailer
+// Modern OTP Email Template
 // ------------------------------------------------------------------
-const testConnection = async (host, port) => {
-  console.log(`\n--- [1] DNS Lookup ---`);
-  try {
-    const addresses = await resolveDns(host);
-    console.log(`✅ DNS resolved ${host} to:`, addresses);
-  } catch (err) {
-    console.error(`❌ DNS lookup failed for ${host}:`, err.message);
-  }
+const getOtpTemplate = (otp) => {
+  return `
+    <div style="font-family: 'Inter', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #eaeaea;">
+      
+      <!-- Header Area -->
+      <div style="background-color: #d1fae5; padding: 40px 20px; text-align: center;">
+        <img src="https://res.cloudinary.com/dfqeq12he/image/upload/v1782940796/image-1_ub7vov.png" alt="Security Lock" style="width: 100%; max-width: 250px; height: auto; display: block; margin: 0 auto;" />
+      </div>
 
-  console.log(`\n--- [2] TCP Connection Test ---`);
-  return new Promise((resolve) => {
-    const socket = new net.Socket();
-    socket.setTimeout(10000); // 10 second timeout for TCP
+      <!-- Main Body -->
+      <div style="padding: 40px 20px; text-align: center;">
+        <h1 style="color: #000000; font-size: 24px; font-weight: 700; margin-bottom: 25px;">Your one-time code is</h1>
+        
+        <!-- OTP Box -->
+        <div style="display: inline-block; padding: 15px 40px; border: 2px solid #000000; font-size: 32px; font-weight: bold; letter-spacing: 4px; color: #000000; margin-bottom: 30px;">
+          ${otp}
+        </div>
+        
+        <p style="color: #333333; font-size: 15px; line-height: 1.6; margin: 0 auto; max-width: 400px;">
+          Please verify you're really you by entering this 6-digit code when you sign in. Just a heads up, this code will expire in 10 minutes for security reasons.
+        </p>
+      </div>
 
-    console.log(`Attempting raw TCP connection to ${host}:${port}...`);
-    
-    socket.on("connect", () => {
-      console.log(`✅ Raw TCP connection successful to ${host}:${port}`);
-      socket.destroy();
-      resolve(true);
-    });
+      <!-- Security Notice -->
+      <div style="padding: 30px 20px; text-align: center; border-top: 1px solid #f0f0f0;">
+        <h2 style="color: #000000; font-size: 18px; margin-bottom: 15px;">We noticed a new login attempt</h2>
+        <p style="color: #333333; font-size: 14px; margin-bottom: 20px;">
+          If you didn't just try to sign in, we recommend you secure your account immediately.
+        </p>
+        <a href="#" style="display: inline-block; background-color: #000000; color: #ffffff; text-decoration: none; padding: 14px 30px; font-weight: bold; font-size: 14px; border-radius: 4px;">
+          Contact Support
+        </a>
+      </div>
 
-    socket.on("timeout", () => {
-      console.error(`❌ TCP Connection timed out after 10s to ${host}:${port}`);
-      socket.destroy();
-      resolve(false);
-    });
-
-    socket.on("error", (err) => {
-      console.error(`❌ TCP Connection error to ${host}:${port}:`, err.message);
-      socket.destroy();
-      resolve(false);
-    });
-
-    socket.connect(port, host);
-  });
+      <!-- Footer -->
+      <div style="background-color: #f9f9f9; padding: 40px 20px; text-align: center; border-top: 1px solid #eeeeee;">
+        <p style="color: #333333; font-size: 14px; line-height: 1.5; margin-bottom: 20px;">
+          If you have any questions, contact our Website Guides.<br/>
+          Or, visit our Help Center.
+        </p>
+        
+        <div style="margin-top: 20px;">
+          <p style="color: #777777; font-size: 12px;">&copy; ${new Date().getFullYear()} Hostel App. All rights reserved.</p>
+        </div>
+      </div>
+    </div>
+  `;
 };
 
 // ------------------------------------------------------------------
 // Main Email Function
 // ------------------------------------------------------------------
-const sendEmail = async (email, otp) => {
+export default async function sendEmail(email, otp) {
   try {
-    console.log("\n========== SMTP DEBUG ==========");
-    
-    // Default to Brevo or Gmail based on ENV
-    const smtpHost = process.env.SMTP_HOST || "smtp.gmail.com";
-    const smtpPort = parseInt(process.env.SMTP_PORT) || 587;
-    const isSecure = smtpPort === 465;
-
-    console.log(`SMTP_HOST: ${smtpHost}`);
-    console.log(`SMTP_PORT: ${smtpPort}`);
-    console.log(`SMTP_SECURE (TLS): ${isSecure}`);
-    console.log(`SMTP_EMAIL Exists: ${!!process.env.SMTP_EMAIL}`);
-    console.log(`SMTP_PASS Exists: ${!!process.env.SMTP_PASS}`);
-
-    // Run explicit network diagnostics
-    const tcpSuccess = await testConnection(smtpHost, smtpPort);
-    if (!tcpSuccess) {
-      console.error("\n🚨 ALERT: Raw TCP connection failed. Nodemailer WILL fail.");
-      console.error("This confirms the issue is at the network layer, not in Nodemailer.");
+    if (!process.env.BREVO_API_KEY) {
+      throw new Error("Missing required environment variable: BREVO_API_KEY");
     }
 
-    console.log(`\n--- [3] Nodemailer Setup ---`);
-    
-    // Best practice transporter configuration
-    const transporter = nodemailer.createTransport({
-      host: smtpHost,
-      port: smtpPort,
-      secure: isSecure,
-      auth: {
-        user: process.env.SMTP_EMAIL,
-        pass: process.env.SMTP_PASS,
+    const senderEmail = process.env.EMAIL_FROM || "noreply@yourdomain.com";
+
+    // Initialize the official Brevo SDK (v5+)
+    const brevo = new BrevoClient({
+      apiKey: process.env.BREVO_API_KEY
+    });
+
+    const response = await brevo.transactionalEmails.sendTransacEmail({
+      sender: {
+        name: "Hostel App",
+        email: senderEmail
       },
-      // Essential timeouts for robust error handling
-      connectionTimeout: 10000, 
-      greetingTimeout: 10000,   
-      socketTimeout: 15000,     
-      
-      // Force IPv4 to prevent IPv6 blackholing
-      family: 4, 
-      
-      // Enable full debugging for insights
-      debug: true,  
-      logger: true, 
+      to: [{ email }],
+      subject: "OTP Verification - Hostel App",
+      htmlContent: getOtpTemplate(otp),
+      textContent: `Your One-Time Password (OTP) for Hostel App verification is: ${otp}. This OTP is valid for 10 minutes. If you did not request this, please ignore this email.`
     });
 
-    console.log(`Sending Email to ${email}...`);
-
-    const info = await transporter.sendMail({
-      from: `"Hostel App" <${process.env.SMTP_EMAIL}>`,
-      to: email,
-      subject: "OTP Verification",
-      html: `
-        <h2>Email Verification</h2>
-        <h1>${otp}</h1>
-        <p>OTP expires in 5 minutes.</p>
-      `,
-    });
-
-    console.log("✅ Email Sent Successfully");
-    console.log("Message ID:", info.messageId);
+    console.log("========== BREVO DEBUG ==========");
+    console.log(`Recipient: ${email}`);
+    console.log(`Subject: OTP Verification - Hostel App`);
+    console.log(`Status: Success`);
+    console.log(`Message ID: ${response.messageId || JSON.stringify(response)}`);
+    console.log("================================");
 
     return true;
   } catch (err) {
-    console.error("\n========== SMTP ERROR ==========");
-    console.error("Message:", err.message);
-    console.error("Code:", err.code);
-    console.error("Command:", err.command);
-    
-    if (err.code === "ETIMEDOUT") {
-      console.error("\n💡 ANALYSIS:");
-      console.error("The ETIMEDOUT occurred during 'CONN' (Connection Phase).");
-      console.error("This means Node.js could not even establish a TCP handshake with the SMTP server.");
-      console.error("Authentication has NOT been attempted yet because there is no open socket.");
-    }
-    
+    console.error("========== BREVO ERROR ==========");
+    console.error(`Message: ${err.message}`);
+    console.error(`Status: ${err.statusCode || err.response?.status || "N/A"}`);
+    console.error(`Response: ${JSON.stringify(err.body || err.response?.body || err.message)}`);
+    console.error(`Stack: ${err.stack}`);
+    console.error("================================");
+
     throw err;
   }
-};
-
-export default sendEmail;
+}
