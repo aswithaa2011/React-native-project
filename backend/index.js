@@ -96,24 +96,6 @@ app.use("/api/admin/transport", adminTransportRoutes);
 // /api/admin/transport/:hubId/status   PATCH
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Error Middleware (must be last)
 app.use(errorHandler);
 
