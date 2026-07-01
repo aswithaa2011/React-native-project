@@ -34,45 +34,74 @@ export const getSuggestions = async (query) => {
       },
     },
     {
-      // 2. Pool all relevant string fields/arrays into a single array.
+      // 2. Pool all relevant string fields/arrays into an array of objects to track type.
       $project: {
         suggestionsPool: {
           $concatArrays: [
-            { $ifNull: ["$searchKeywords", []] },
-            { $ifNull: ["$amenities", []] },
-            [{ $ifNull: ["$propertyName", ""] }],
-            [{ $ifNull: ["$location.city", ""] }],
-            [{ $ifNull: ["$location.area", ""] }],
+            [{ type: "propertyName", value: { $ifNull: ["$propertyName", ""] } }],
+            {
+              $map: {
+                input: { $ifNull: ["$searchKeywords", []] },
+                as: "kw",
+                in: { type: "keyword", value: "$$kw" },
+              },
+            },
+            {
+              $map: {
+                input: { $ifNull: ["$amenities", []] },
+                as: "am",
+                in: { type: "amenity", value: "$$am" },
+              },
+            },
+            [{ type: "city", value: { $ifNull: ["$location.city", ""] } }],
+            [{ type: "area", value: { $ifNull: ["$location.area", ""] } }],
           ],
         },
       },
     },
     {
-      // 3. Unwind the pool into individual strings.
+      // 3. Unwind the pool into individual objects.
       $unwind: "$suggestionsPool",
     },
     {
-      // 4. Ensure it's a string, trim spaces, and lowercase it for deduplication.
+      // 4. Ensure it's a string, trim spaces, and keep original and lowercased values.
       $project: {
-        suggestion: { $trim: { input: { $toLower: { $toString: "$suggestionsPool" } } } },
+        type: "$suggestionsPool.type",
+        originalValue: { $trim: { input: { $toString: "$suggestionsPool.value" } } },
+        lowerValue: { $trim: { input: { $toLower: { $toString: "$suggestionsPool.value" } } } },
       },
     },
     {
       // 5. Match only the individual strings that contain the query.
       $match: {
-        suggestion: matchRegex,
+        lowerValue: matchRegex,
       },
     },
     {
-      // 6. Group by the suggestion string to remove duplicates.
+      // 6. Group by the lowercased suggestion string to remove duplicates.
       $group: {
-        _id: "$suggestion",
+        _id: "$lowerValue",
+        suggestion: { $first: "$originalValue" },
+        priority: {
+          $min: {
+            $switch: {
+              branches: [
+                { case: { $eq: ["$type", "propertyName"] }, then: 1 },
+                { case: { $eq: ["$type", "city"] }, then: 2 },
+                { case: { $eq: ["$type", "area"] }, then: 3 },
+                { case: { $eq: ["$type", "keyword"] }, then: 4 },
+                { case: { $eq: ["$type", "amenity"] }, then: 5 },
+              ],
+              default: 6,
+            },
+          },
+        },
       },
     },
     {
       // 7. Assign a relevance score. "Starts with" gets priority (lower number).
       $addFields: {
-        score: {
+        startsWithScore: {
           $cond: {
             if: { $regexMatch: { input: "$_id", regex: startsWithRegex } },
             then: 1,
@@ -82,8 +111,8 @@ export const getSuggestions = async (query) => {
       },
     },
     {
-      // 8. Sort by score (priority) then alphabetically.
-      $sort: { score: 1, _id: 1 },
+      // 8. Sort by priority, then by startsWithScore, then alphabetically.
+      $sort: { priority: 1, startsWithScore: 1, _id: 1 },
     },
     {
       // 9. Limit to top 10 suggestions.
@@ -93,7 +122,7 @@ export const getSuggestions = async (query) => {
       // 10. Output just the array of strings.
       $group: {
         _id: null,
-        suggestions: { $push: "$_id" },
+        suggestions: { $push: "$suggestion" },
       },
     },
   ];
