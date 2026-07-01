@@ -29,13 +29,24 @@ export const sendOTP = async (req, res) => {
       expiresAt: new Date(Date.now() + 5 * 60 * 1000),
     });
 
-    console.log(otp)
+    console.log("Generated OTP:", otp);
 
-    await sendEmail(email, otp);
+    // Try sending email — if it fails, OTP is still saved in DB
+    let emailSent = false;
+    try {
+      await sendEmail(email, otp);
+      emailSent = true;
+    } catch (emailError) {
+      console.error("Email sending failed:", emailError.message);
+    }
 
     return res.status(200).json({
       success: true,
-      message: "OTP sent successfully",
+      message: emailSent
+        ? "OTP sent successfully to email"
+        : "OTP generated (email delivery failed — check SMTP config)",
+      // ⚠️ Remove otp from response in production
+      otp,
     });
   } catch (error) {
     console.error("Error in sendOTP:", error);
@@ -153,11 +164,22 @@ export const resendOTP = async (req, res) => {
       expiresAt,
     });
 
-    await sendEmail(email, otp);
+    // Try sending email — if it fails, OTP is still saved in DB
+    let emailSent = false;
+    try {
+      await sendEmail(email, otp);
+      emailSent = true;
+    } catch (emailError) {
+      console.error("Resend email failed:", emailError.message);
+    }
 
     return res.status(200).json({
       success: true,
-      message: "OTP sent successfully",
+      message: emailSent
+        ? "OTP resent successfully to email"
+        : "OTP generated (email delivery failed — check SMTP config)",
+      // ⚠️ Remove otp from response in production
+      otp,
     });
   } catch (error) {
     console.error("Error in resendOTP:", error);
