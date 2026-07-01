@@ -1,42 +1,99 @@
 import nodemailer from "nodemailer";
+import dns from "dns";
+import net from "net";
+import { promisify } from "util";
 
+const resolveDns = promisify(dns.resolve);
+
+// ------------------------------------------------------------------
+// Diagnostic function: Test DNS and TCP connection before Nodemailer
+// ------------------------------------------------------------------
+const testConnection = async (host, port) => {
+  console.log(`\n--- [1] DNS Lookup ---`);
+  try {
+    const addresses = await resolveDns(host);
+    console.log(`✅ DNS resolved ${host} to:`, addresses);
+  } catch (err) {
+    console.error(`❌ DNS lookup failed for ${host}:`, err.message);
+  }
+
+  console.log(`\n--- [2] TCP Connection Test ---`);
+  return new Promise((resolve) => {
+    const socket = new net.Socket();
+    socket.setTimeout(10000); // 10 second timeout for TCP
+
+    console.log(`Attempting raw TCP connection to ${host}:${port}...`);
+    
+    socket.on("connect", () => {
+      console.log(`✅ Raw TCP connection successful to ${host}:${port}`);
+      socket.destroy();
+      resolve(true);
+    });
+
+    socket.on("timeout", () => {
+      console.error(`❌ TCP Connection timed out after 10s to ${host}:${port}`);
+      socket.destroy();
+      resolve(false);
+    });
+
+    socket.on("error", (err) => {
+      console.error(`❌ TCP Connection error to ${host}:${port}:`, err.message);
+      socket.destroy();
+      resolve(false);
+    });
+
+    socket.connect(port, host);
+  });
+};
+
+// ------------------------------------------------------------------
+// Main Email Function
+// ------------------------------------------------------------------
 const sendEmail = async (email, otp) => {
   try {
-    console.log("========== SMTP DEBUG ==========");
-    console.log("SMTP_EMAIL:", process.env.SMTP_EMAIL);
-    console.log("SMTP_PASS Exists:", !!process.env.SMTP_PASS);
+    console.log("\n========== SMTP DEBUG ==========");
     
-    // Determine host and port (defaults to Brevo if not specified)
-    // Gmail SMTP is highly unreliable on cloud hosts like Render due to IP blocks and IPv6 routing issues.
-    const smtpHost = process.env.SMTP_HOST || "smtp-relay.brevo.com";
-    const smtpPort = process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : 587;
+    // Default to Brevo or Gmail based on ENV
+    const smtpHost = process.env.SMTP_HOST || "smtp.gmail.com";
+    const smtpPort = parseInt(process.env.SMTP_PORT) || 587;
+    const isSecure = smtpPort === 465;
 
-    console.log(`Configuring Nodemailer for ${smtpHost}:${smtpPort}`);
+    console.log(`SMTP_HOST: ${smtpHost}`);
+    console.log(`SMTP_PORT: ${smtpPort}`);
+    console.log(`SMTP_SECURE (TLS): ${isSecure}`);
+    console.log(`SMTP_EMAIL Exists: ${!!process.env.SMTP_EMAIL}`);
+    console.log(`SMTP_PASS Exists: ${!!process.env.SMTP_PASS}`);
 
+    // Run explicit network diagnostics
+    const tcpSuccess = await testConnection(smtpHost, smtpPort);
+    if (!tcpSuccess) {
+      console.error("\n🚨 ALERT: Raw TCP connection failed. Nodemailer WILL fail.");
+      console.error("This confirms the issue is at the network layer, not in Nodemailer.");
+    }
+
+    console.log(`\n--- [3] Nodemailer Setup ---`);
+    
+    // Best practice transporter configuration
     const transporter = nodemailer.createTransport({
       host: smtpHost,
       port: smtpPort,
-      secure: smtpPort === 465, // true for 465, false for other ports
+      secure: isSecure,
       auth: {
         user: process.env.SMTP_EMAIL,
         pass: process.env.SMTP_PASS,
       },
-      // Force IPv4. Render frequently experiences IPv6 routing timeouts (ETIMEDOUT) 
-      // when communicating with external SMTP servers like Gmail or Brevo.
+      // Essential timeouts for robust error handling
+      connectionTimeout: 10000, 
+      greetingTimeout: 10000,   
+      socketTimeout: 15000,     
+      
+      // Force IPv4 to prevent IPv6 blackholing
       family: 4, 
       
-      // Robust connection timeouts for production
-      connectionTimeout: 10000, // Time to wait for a connection to be established
-      greetingTimeout: 10000,   // Time to wait for the greeting after connection
-      socketTimeout: 15000,     // Time of inactivity until the connection is closed
-      
-      debug: false,  // Disable verbose debug in production unless needed
-      logger: false, // Disable verbose logger in production
+      // Enable full debugging for insights
+      debug: true,  
+      logger: true, 
     });
-
-    // NOTE: transporter.verify() is intentionally removed. 
-    // It can block the event loop, cause deployment timeouts on Render, 
-    // and is not necessary since sendMail will throw an error if it fails to connect anyway.
 
     console.log(`Sending Email to ${email}...`);
 
@@ -56,21 +113,18 @@ const sendEmail = async (email, otp) => {
 
     return true;
   } catch (err) {
-    console.error("========== SMTP ERROR ==========");
+    console.error("\n========== SMTP ERROR ==========");
     console.error("Message:", err.message);
     console.error("Code:", err.code);
     console.error("Command:", err.command);
-    console.error("Response:", err.response);
     
-    // Provide actionable advice based on the error
     if (err.code === "ETIMEDOUT") {
-      console.error("💡 TIP: ETIMEDOUT means Render could not connect to the SMTP server. If using Gmail, Google may be blocking the datacenter IP. Please switch to Brevo (smtp-relay.brevo.com).");
-    } else if (err.code === "EAUTH") {
-      console.error("💡 TIP: EAUTH means authentication failed. Check your SMTP_EMAIL and SMTP_PASS. If using Gmail, ensure you have an App Password generated.");
+      console.error("\n💡 ANALYSIS:");
+      console.error("The ETIMEDOUT occurred during 'CONN' (Connection Phase).");
+      console.error("This means Node.js could not even establish a TCP handshake with the SMTP server.");
+      console.error("Authentication has NOT been attempted yet because there is no open socket.");
     }
     
-    console.error("Full Error:", err);
-
     throw err;
   }
 };
