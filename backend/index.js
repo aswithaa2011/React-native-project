@@ -25,6 +25,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Health check route
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok", message: "Server is running" });
+});
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
