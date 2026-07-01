@@ -2,12 +2,6 @@ import mongoose from "mongoose";
 
 const propertySchema = new mongoose.Schema(
   {
-    propertyId: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-
     propertyName: {
       type: String,
       required: true,
@@ -29,7 +23,6 @@ const propertySchema = new mongoose.Schema(
       doorNo: String,
       street: String,
       pincode: String,
-
     },
 
     location: {
@@ -37,12 +30,10 @@ const propertySchema = new mongoose.Schema(
         type: String,
         required: true,
       },
-
       area: {
         type: String,
         required: true,
       },
-
       latitude: Number,
       longitude: Number,
     },
@@ -57,70 +48,24 @@ const propertySchema = new mongoose.Schema(
     amenities: [String],
 
     reviewSummary: {
-      averageRating: {
-        type: Number,
-        default: 0,
-      },
-
-      totalReviews: {
-        type: Number,
-        default: 0,
-      },
-
-      recommendCount: {
-        type: Number,
-        default: 0,
-      },
-
-      notRecommendCount: {
-        type: Number,
-        default: 0,
-      },
-
+      averageRating: { type: Number, default: 0 },
+      totalReviews: { type: Number, default: 0 },
+      recommendCount: { type: Number, default: 0 },
+      notRecommendCount: { type: Number, default: 0 },
       categoryRatings: {
-        cleanliness: {
-          type: Number,
-          default: 0,
-        },
-
-        food: {
-          type: Number,
-          default: 0,
-        },
-
-        security: {
-          type: Number,
-          default: 0,
-        },
-
-        wifi: {
-          type: Number,
-          default: 0,
-        },
-
-        staff: {
-          type: Number,
-          default: 0,
-        },
-
-        location: {
-          type: Number,
-          default: 0,
-        },
-
-        valueForMoney: {
-          type: Number,
-          default: 0,
-        },
+        cleanliness: { type: Number, default: 0 },
+        food: { type: Number, default: 0 },
+        security: { type: Number, default: 0 },
+        wifi: { type: Number, default: 0 },
+        staff: { type: Number, default: 0 },
+        location: { type: Number, default: 0 },
+        waterFacility: { type: Number, default: 0 },
+        valueForMoney: { type: Number, default: 0 },
       },
     },
 
     verification: {
-      isVerified: {
-        type: Boolean,
-        default: false,
-      },
-
+      isVerified: { type: Boolean, default: false },
       status: {
         type: String,
         enum: ["Pending", "Approved", "Rejected"],
@@ -128,19 +73,17 @@ const propertySchema = new mongoose.Schema(
       },
     },
 
-    createdBy: {
-      type: String,
-      required: true,
-    },
+    createdBy: { type: String, required: true },
+    updatedBy: { type: String, required: true },
 
-    updatedBy: {
-      type: String,
-      required: true,
+    // Auto-generated search keywords — never set manually by the consumer.
+    // Populated by generateSearchKeywords() in the create/update controller.
+    searchKeywords: {
+      type: [String],
+      default: [],
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 const Property = mongoose.model("Property", propertySchema);
