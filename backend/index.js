@@ -27,6 +27,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+console.log(process.env.SMTP_EMAIL)
+console.log(process.env.SMTP_PASS)
+
 // Health check route
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok", message: "Server is running" });
@@ -50,7 +53,7 @@ app.use("/api/admin/verify", adminVerificationRoutes);
 app.use("/api/review", reviewRoutes);
 app.use("/api/properties", propertyRouter);
 app.use("/api/amenities", amenityRoutes);
-app.use("/api/otherAmenities",otherAmenityRoutes);
+app.use("/api/otherAmenities", otherAmenityRoutes);
 app.use("/api/property/search", searchRoutes);
 app.use("/api/transport", transportRouter);
 app.use("/api/admin/transport", adminTransportRoutes);

@@ -2,6 +2,9 @@ import nodemailer from "nodemailer";
 
 const sendEmail = async (email, otp) => {
   try {
+
+    console.log(process.env.SMTP_EMAIL)
+    console.log(process.env.SMTP_PASS)
     const transporter = nodemailer.createTransport({
       service: "gmail",
       port: 587,
