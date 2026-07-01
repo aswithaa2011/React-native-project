@@ -7,6 +7,9 @@ const sendEmail = async (email, otp) => {
   const transporter = nodemailer.createTransport({
 
     service: "gmail",
+    port: 587,
+    secure: false,
+    family: 4, // Force IPv4
     auth: {
       user: process.env.SMTP_EMAIL,
       pass: process.env.SMTP_PASS,
