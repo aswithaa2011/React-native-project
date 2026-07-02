@@ -45,7 +45,7 @@ const getOtpTemplate = (otp) => {
         </p>
         
         <div style="margin-top: 20px;">
-          <p style="color: #777777; font-size: 12px;">&copy; ${new Date().getFullYear()} Hostel App. All rights reserved.</p>
+          <p style="color: #777777; font-size: 12px;">&copy; ${new Date().getFullYear()} Truth Review. All rights reserved.</p>
         </div>
       </div>
     </div>
@@ -70,18 +70,18 @@ export default async function sendEmail(email, otp) {
 
     const response = await brevo.transactionalEmails.sendTransacEmail({
       sender: {
-        name: "Hostel App",
+        name: "Truth Review",
         email: senderEmail
       },
       to: [{ email }],
-      subject: "OTP Verification - Hostel App",
+      subject: "OTP Verification - Truth Review",
       htmlContent: getOtpTemplate(otp),
-      textContent: `Your One-Time Password (OTP) for Hostel App verification is: ${otp}. This OTP is valid for 10 minutes. If you did not request this, please ignore this email.`
+      textContent: `Your One-Time Password (OTP) for Truth Review verification is: ${otp}. This OTP is valid for 10 minutes. If you did not request this, please ignore this email.`
     });
 
     console.log("========== BREVO DEBUG ==========");
     console.log(`Recipient: ${email}`);
-    console.log(`Subject: OTP Verification - Hostel App`);
+    console.log(`Subject: OTP Verification - Truth Review`);
     console.log(`Status: Success`);
     console.log(`Message ID: ${response.messageId || JSON.stringify(response)}`);
     console.log("================================");

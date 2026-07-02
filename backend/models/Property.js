@@ -86,6 +86,25 @@ const propertySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// ─── Compound unique index for duplicate-property prevention ─────────────────
+// collation strength 2 = case-insensitive, accent-sensitive comparison
+// This acts as a DB-level safety net even if app-level normalisation is bypassed.
+propertySchema.index(
+  {
+    propertyName:   1,
+    "location.city": 1,
+    "location.area": 1,
+    "address.doorNo":   1,
+    "address.street":   1,
+    "address.pincode":  1,
+  },
+  {
+    unique: true,
+    collation: { locale: "en", strength: 2 },
+    name: "unique_property_compound",
+  }
+);
+
 const Property = mongoose.model("Property", propertySchema);
 
 export default Property;

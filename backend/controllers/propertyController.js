@@ -1,12 +1,51 @@
 import Property from "../models/Property.js";
 import generateSearchKeywords from "../utils/generateSearchKeywords.js";
 
+// ─── Helper: normalise a string value for duplicate comparison ─────────────────
+// Trims leading/trailing whitespace and converts to lowercase.
+const normalise = (value) => (value ?? "").toString().trim().toLowerCase();
+
+// ─── Helper: build a case-insensitive, trimmed regex for a field ───────────────
+const ciRegex = (value) => new RegExp(`^${normalise(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i");
+
 // Create Property
 export const createProperty = async (req, res) => {
   try {
     const propertyImages = (req.files || []).map((file) => `/uploads/${file.filename}`);
 
-    // Build the document data first so we can generate keywords from it
+    // ── Step 1: Extract & normalise the six duplicate-key fields ─────────────
+    const {
+      propertyName,
+      location = {},
+      address  = {},
+    } = req.body;
+
+    const normName    = normalise(propertyName);
+    const normCity    = normalise(location.city);
+    const normArea    = normalise(location.area);
+    const normDoorNo  = normalise(address.doorNo);
+    const normStreet  = normalise(address.street);
+    const normPincode = normalise(address.pincode);
+
+    // ── Step 2: Check for an existing property matching all six fields ────────
+    const duplicate = await Property.findOne({
+      propertyName:    ciRegex(normName),
+      "location.city": ciRegex(normCity),
+      "location.area": ciRegex(normArea),
+      "address.doorNo":   ciRegex(normDoorNo),
+      "address.street":   ciRegex(normStreet),
+      "address.pincode":  ciRegex(normPincode),
+    }).select("_id").lean();
+
+    if (duplicate) {
+      return res.status(409).json({
+        success: false,
+        message: "Property already exists.",
+        propertyId: duplicate._id,
+      });
+    }
+
+    // ── Step 3: Build document, generate keywords, and save ──────────────────
     const propertyData = {
       ...req.body,
       propertyImages,
@@ -23,6 +62,27 @@ export const createProperty = async (req, res) => {
       data: property,
     });
   } catch (error) {
+    // ── Graceful handler for MongoDB duplicate-key error (race-condition guard) ─
+    if (error.code === 11000) {
+      // Attempt to locate the conflicting document to return its ID
+      const { propertyName, location = {}, address = {} } = req.body;
+
+      const conflicting = await Property.findOne({
+        propertyName:    ciRegex(propertyName),
+        "location.city": ciRegex(location.city),
+        "location.area": ciRegex(location.area),
+        "address.doorNo":   ciRegex(address.doorNo),
+        "address.street":   ciRegex(address.street),
+        "address.pincode":  ciRegex(address.pincode),
+      }).select("_id").lean();
+
+      return res.status(409).json({
+        success: false,
+        message: "Property already exists.",
+        propertyId: conflicting?._id ?? null,
+      });
+    }
+
     return res.status(500).json({
       success: false,
       message: error.message,
