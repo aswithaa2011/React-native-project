@@ -8,8 +8,8 @@ const getOtpTemplate = (otp) => {
     <div style="font-family: 'Inter', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #eaeaea;">
       
       <!-- Header Area -->
-      <div style="background-color: #d1fae5; padding: 40px 20px; text-align: center;">
-        <img src="https://res.cloudinary.com/dfqeq12he/image/upload/v1782940796/image-1_ub7vov.png" alt="Security Lock" style="width: 100%; max-width: 250px; height: auto; display: block; margin: 0 auto;" />
+      <div style="background-color: #d1fae5; padding: 30px 10px; text-align: center;">
+        <img src="https://res.cloudinary.com/dfqeq12he/image/upload/v1782940796/image-1_ub7vov.png" alt="Security Lock" style="width:100%; max-width:150px; height:auto; display:block; margin:0 auto;" />
       </div>
 
       <!-- Main Body -->

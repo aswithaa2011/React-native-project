@@ -29,8 +29,6 @@ export const sendOTP = async (req, res) => {
       expiresAt: new Date(Date.now() + 5 * 60 * 1000),
     });
 
-    console.log("Generated OTP:", otp);
-
     // Try sending email — if it fails, OTP is still saved in DB
     let emailSent = false;
     try {
