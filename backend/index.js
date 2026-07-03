@@ -42,11 +42,14 @@ app.use(
   )
 );
 
+//admin api
+app.use("/api/admin/auth", adminAuthRoutes);
+app.use("/api/admin/verify", adminVerificationRoutes);
+
+//user api
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", userProfileRoutes);
 app.use("/api/verification", verificationRoutes);
-app.use("/api/admin/auth", adminAuthRoutes);
-app.use("/api/admin/verify", adminVerificationRoutes);
 app.use("/api/review", reviewRoutes);
 app.use("/api/properties", propertyRouter);
 app.use("/api/amenities", amenityRoutes);

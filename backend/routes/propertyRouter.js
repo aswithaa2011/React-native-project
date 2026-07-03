@@ -23,8 +23,11 @@ propertyRouter.get("/details/:propertyId", getPropertyWithTransport);
 
 propertyRouter.get("/getbyid/:id", getPropertyById);
 
+
+//access by property owner only
 propertyRouter.put("/update/:id", protect, updateProperty);
 
+// access by admin
 propertyRouter.delete("/delete/:id", adminProtect, deleteProperty);
 
 export default propertyRouter;

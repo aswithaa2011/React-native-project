@@ -12,6 +12,7 @@ import { protect } from "../middlewares/authMiddleware.js";
 const router = express.Router();
 
 // All routes are protected
+//user submit the 
 router.use(protect);
 
 router.route("/identity")

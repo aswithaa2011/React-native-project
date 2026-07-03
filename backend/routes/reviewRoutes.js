@@ -13,10 +13,13 @@ import { adminProtect } from "../middlewares/adminMiddleware.js";
 
 const router = express.Router();
 
+// user access api
 router.post("/create",uploadReviewImages.array("reviewImages", 5), createReview);
 router.get("/property/:propertyId", getReviewsByPropertyId);
 router.get("/getall", getAllReviews);
 router.get("/getone/:id", getReviewById);
+
+//admin only access the review update and delete
 router.put("/update/:id", adminProtect, uploadReviewImages.array("reviewImages", 5), updateReview);
 router.delete("/delete/:id", adminProtect, deleteReview);
 

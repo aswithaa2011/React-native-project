@@ -13,7 +13,6 @@ const transportHubSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      unique: true,
     },
 
     /**
@@ -29,8 +28,7 @@ const transportHubSchema = new mongoose.Schema(
     },
 
     line: {
-      type: String,
-      trim: true,
+      type: [String],
       default: null,
     },
 

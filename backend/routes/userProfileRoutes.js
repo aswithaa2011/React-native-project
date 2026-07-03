@@ -8,11 +8,13 @@ import {
 import { protect } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
-
-router.get("/", protect, getMyProfile);
-router.get("/:userId", getUserProfile);
+//user access the datas
+router.get("/", protect, getMyProfile); 
 router.put("/update", protect, updateUserProfile);
 router.patch("/account-type", protect, updateAccountType);
+
+//another user get your profile view api
+router.get("/:userId", getUserProfile);
 
 export default router;
 
