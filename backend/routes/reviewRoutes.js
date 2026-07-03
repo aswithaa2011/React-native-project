@@ -9,6 +9,7 @@ deleteReview
 } from "../controllers/reviewController.js";
 
 import uploadReviewImages from "../middlewares/reviewImage.js"
+import { adminProtect } from "../middlewares/adminMiddleware.js";
 
 const router = express.Router();
 
@@ -16,8 +17,8 @@ router.post("/create",uploadReviewImages.array("reviewImages", 5), createReview)
 router.get("/property/:propertyId", getReviewsByPropertyId);
 router.get("/getall", getAllReviews);
 router.get("/getone/:id", getReviewById);
-router.put("/update/:id", uploadReviewImages.array("reviewImages", 5), updateReview);
-router.delete("/delete/:id", deleteReview);
+router.put("/update/:id", adminProtect, uploadReviewImages.array("reviewImages", 5), updateReview);
+router.delete("/delete/:id", adminProtect, deleteReview);
 
 
 export default router;

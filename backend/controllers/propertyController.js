@@ -175,6 +175,13 @@ export const updateProperty = async (req, res) => {
       });
     }
 
+    if (existing.createdBy !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "Not authorized. Only the property owner can update this property.",
+      });
+    }
+
     // Merge existing data with incoming changes (incoming takes priority)
     const merged = {
       propertyName:  req.body.propertyName  ?? existing.propertyName,

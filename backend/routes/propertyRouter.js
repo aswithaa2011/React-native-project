@@ -9,6 +9,8 @@ import {
   deleteProperty,
 } from "../controllers/propertyController.js";
 import { getPropertyWithTransport } from "../controllers/transportController.js";
+import { protect } from "../middlewares/authMiddleware.js";
+import { adminProtect } from "../middlewares/adminMiddleware.js";
 
 const propertyRouter = express.Router();
 
@@ -21,9 +23,9 @@ propertyRouter.get("/details/:propertyId", getPropertyWithTransport);
 
 propertyRouter.get("/getbyid/:id", getPropertyById);
 
-propertyRouter.put("/update/:id", updateProperty);
+propertyRouter.put("/update/:id", protect, updateProperty);
 
-propertyRouter.delete("/delete/:id", deleteProperty);
+propertyRouter.delete("/delete/:id", adminProtect, deleteProperty);
 
 export default propertyRouter;
 
