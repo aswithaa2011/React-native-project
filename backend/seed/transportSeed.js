@@ -747,15 +747,17 @@ const normalizeName = (name) => {
 
   // Prefixes WITHOUT punctuation
   const prefixes = [
-    "puratchi thalaivar dr mgr",
-    "puratchi thalaivi dr",
+    "puratchi thalaivar",
+    "puratchi thalaivi",
     "mg ramachandran",
+    "m g ramachandran",
     "j jayalalithaa",
     "chennai",
     "dr",
     "mgr",
+    "m g r"
   ];
-
+  
   for (const prefix of prefixes) {
     // Use word boundaries so we don't accidentally replace parts of valid words
     n = n.replace(new RegExp(`\\b${prefix}\\b`, 'gi'), "");
